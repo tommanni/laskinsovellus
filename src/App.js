@@ -1,68 +1,56 @@
 import './App.css';
-import Button from '@mui/material/Button';
-import tentit from './TenttiData'
-import Checkbox from '@mui/material/Checkbox'
-import { useState } from 'react'
+import { useState } from "react"
+import Nappain from './Nappain';
 
+const operaattorit = ["/", "+", "-", "*", "CLEAR", "DEL"]
+const nappaimet = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "="]
 
+function App() {
+  const [laskuKentta, setLaskuKentta] = useState('0')
+  const [tulosKentta, setTulosKentta] = useState('0')
 
-const App = () => {
+  const handleClick = (nappain) => {
+    if (laskuKentta === '0' && !operaattorit.includes(nappain) && nappain !== "." && nappain !== "=") {
+      setLaskuKentta(nappain)
+      setTulosKentta(nappain)
+      return
+    } else if (nappain === "DEL") {
+      if (laskuKentta.length === 1) {
+        setLaskuKentta('0')
+        setTulosKentta('0')
+        return
+      }
+      setLaskuKentta(laskuKentta.substring(0, laskuKentta.length - 1))
+      setTulosKentta(eval(laskuKentta.substring(0, laskuKentta.length - 1)))
+      return
+    } else if (nappain === "CLEAR") {
+      setLaskuKentta('0')
+      setTulosKentta('0')
+      return
+    } else if (nappain === "=") {
+      setLaskuKentta(tulosKentta)
+      return
+    }
 
-  const [value, setValue] = useState([tentit[0]])
-
-  const setToValue = (newValue) => {
-    setValue(newValue)
+    setLaskuKentta(laskuKentta + nappain)
+    setTulosKentta(eval(laskuKentta + nappain))
   }
 
   return (
     <div>
-      <Header />
-      <Tentit tentit={tentit} value={value} setToValue={setToValue} />
+      <div className='laskin'>
+        <div className='tekstiKenttä'>
+          <p className='tulosKentta'>({tulosKentta})</p> <p className='laskuKentta'>{laskuKentta}</p>
+        </div>
+        <div className='operaattorit'>
+          {operaattorit.map(operaattori => <Nappain handleClick={handleClick} tyyppi={"operaattori"} key={operaattorit.indexOf(operaattori)} nappain={operaattori} />)}
+        </div>
+        <div className='nappaimet'>
+          {nappaimet.map(nappain => <Nappain handleClick={handleClick} tyyppi={"nappain"} key={nappaimet.indexOf(nappain)} nappain={nappain} />)}
+        </div>
+      </div>
     </div>
   );
 }
 
-const Header = () => {
-  return (
-    <header>
-      <nav className='nav'>
-        <ul className='nav-items'>
-          <li><Button style={{ color: '#fff' }} variant='outlined' href="">TENTIT</Button></li>
-          <li><Button style={{ color: '#fff' }} variant='outlined' href="https://www.youtube.com/watch?v=sAqnNWUD79Q">TIETOA SOVELLUKSESTA</Button></li>
-          <li className='poistu'><Button style={{ color: "#fff" }} variant='text' href="">POISTU</Button></li>
-        </ul>
-      </nav>
-    </header >
-  )
-}
-
-const Tentit = ({ tentit, value, setToValue }) => {
-  return (
-    <div className='tentit'>
-      {tentit.map(tentti => <Button onClick={() => setToValue([tentti])}>{tentti.nimi}</Button>)}
-      {value.map(tentti => <Tentti key={tentti.id} tentti={tentti} />)}
-      <Button variant="contained">NÄYTÄ VASTAUKSET</Button>
-    </div>
-  )
-}
-
-const Tentti = ({ tentti }) => {
-  return (
-    <div>
-      {tentti.kysymykset.map(kysymys => <Kysymys key={kysymys.id} kysymysNimi={kysymys.kysymys} kysymys={kysymys} />)}
-    </div>
-
-  );
-}
-
-const Kysymys = (props) => {
-  return (
-    <div className='kysymys'>
-      <p><b>{props.kysymysNimi}</b></p>
-      {props.kysymys.vastaukset.map(vastaus => <div className='vastaus'><Checkbox />{vastaus}</div>)}
-    </div>
-
-  )
-}
-
-export default App
+export default App;
